@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Enterprise Data Policy Compliance Agent — Production-Grade Analytics Dashboard">
+  <title>PolicyGuard — Compliance Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div><h1>PolicyGuard</h1><p class="header-sub">Compliance Intelligence Engine v2.0</p></div>
+      </div>
+      <div class="header-right">
+        <div class="status-badge" id="pipelineStatus"><span class="status-dot"></span><span class="status-text">Ready</span></div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="randomBtn" title="Load random dataset">🎲 Random Dataset</button>
+          <label class="btn btn-ghost file-upload-btn" title="Upload policy file">📂 Upload Policy<input type="file" id="fileUpload" accept=".txt,.text,.md" hidden></label>
+          <button class="btn btn-ghost" id="clearBtn" title="Clear all">🧹 Clear</button>
+          <button class="btn btn-primary" id="runPipelineBtn">▶ Run Pipeline</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Two-Column -->
+  <main class="main-layout">
+
+    <!-- LEFT: Input Sidebar -->
+    <aside class="input-panel" id="inputPanel">
+      <div class="panel-section">
+        <div class="input-label-row">
+          <label for="policyInput">📄 Policy Document</label>
+          <span class="char-count" id="policyCharCount">0 chars</span>
+        </div>
+        <textarea id="policyInput" placeholder="Paste your policy document here, or click 🎲 Random Dataset / 📂 Upload Policy...&#10;&#10;Example:&#10;Any transaction exceeding $10,000 must be flagged for manual compliance review."></textarea>
+      </div>
+      <div class="panel-section">
+        <div class="input-label-row">
+          <label for="transactionInput">📋 Transactions (JSON)</label>
+          <div class="json-validator" id="jsonValidator"><span class="json-dot"></span><span class="json-text">Awaiting input</span></div>
+        </div>
+        <textarea id="transactionInput" class="mono" placeholder='[{ "transaction_id": "TXN-001", "transaction_amount": 15000, ... }]'></textarea>
+      </div>
+      <div class="shortcut-row"><span class="shortcut-hint">Ctrl+Enter to run</span></div>
+    </aside>
+
+    <!-- RIGHT: Results -->
+    <section class="results-panel" id="resultsPanel">
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Ready to Analyze</h3>
+        <p>Click <strong>🎲 Random Dataset</strong> to load data, then <strong>▶ Run Pipeline</strong> to see results.</p>
+      </div>
+
+      <!-- Pipeline Progress -->
+      <div class="pipeline-progress" id="pipelineProgress" style="display:none;">
+        <div class="progress-header"><div class="progress-spinner"></div><h3>Executing Compliance Pipeline</h3></div>
+        <div class="progress-steps" id="progressSteps">
+          <div class="progress-step" data-step="1"><div class="step-indicator"><span class="step-num">1</span></div><div class="step-info"><span class="step-label">Parsing policy document</span></div></div>
+          <div class="progress-step" data-step="2"><div class="step-indicator"><span class="step-num">2</span></div><div class="step-info"><span class="step-label">Validating extracted rules</span></div></div>
+          <div class="progress-step" data-step="3"><div class="step-indicator"><span class="step-num">3</span></div><div class="step-info"><span class="step-label">Detecting rule conflicts</span></div></div>
+          <div class="progress-step" data-step="4"><div class="step-indicator"><span class="step-num">4</span></div><div class="step-info"><span class="step-label">Validating transactions</span></div></div>
+          <div class="progress-step" data-step="5"><div class="step-indicator"><span class="step-num">5</span></div><div class="step-info"><span class="step-label">Building causal chains</span></div></div>
+          <div class="progress-step" data-step="6"><div class="step-indicator"><span class="step-num">6</span></div><div class="step-info"><span class="step-label">Generating analytics &amp; insights</span></div></div>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+      </div>
+
+      <!-- Dashboard Results -->
+      <div id="resultsDashboard" style="display:none;">
+
+        <!-- AI Summary Banner -->
+        <div class="ai-summary" id="aiSummary"></div>
+
+        <!-- Key Insights -->
+        <div class="insights-row" id="insightsRow"></div>
+
+        <!-- Summary Cards -->
+        <div class="summary-row" id="summaryRow">
+          <div class="summary-card"><div class="card-icon ci-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="card-data"><span class="card-value" id="valTotal">0</span><span class="card-label">Transactions</span></div></div>
+          <div class="summary-card"><div class="card-icon ci-red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div class="card-data"><span class="card-value" id="valViolations">0</span><span class="card-label">Violations</span></div></div>
+          <div class="summary-card"><div class="card-icon ci-orange"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="card-data"><span class="card-value" id="valCritical">0</span><span class="card-label">Critical</span></div></div>
+          <div class="summary-card"><div class="card-icon ci-purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="card-data"><span class="card-value" id="valRisk">0</span><span class="card-label">Avg Risk</span></div></div>
+          <div class="summary-card"><div class="card-icon ci-teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div><div class="card-data"><span class="card-value" id="valRuleCount">0</span><span class="card-label">Rules</span></div></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-card"><h3 class="chart-title">Severity Distribution</h3><div class="chart-center"><canvas id="severityChart" width="200" height="200"></canvas></div><div class="chart-legend" id="severityLegend"></div></div>
+          <div class="chart-card"><h3 class="chart-title">Top Triggered Rules</h3><div class="bar-chart" id="ruleBarChart"></div></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar" id="filterBar">
+          <div class="filter-group">
+            <label>Filter:</label>
+            <select id="filterSeverity"><option value="all">All Severities</option><option value="critical">🔴 Critical</option><option value="high">🟠 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option></select>
+            <select id="filterStatus"><option value="all">All Status</option><option value="violated">🚨 Violated</option><option value="passed">✅ Passed</option></select>
+          </div>
+          <div class="filter-group">
+            <button class="btn btn-sm btn-ghost toggle-btn" id="highlightBtn">🔦 Critical Only</button>
+          </div>
+        </div>
+
+        <!-- Collapsible Sections -->
+        <div class="collapsible-section" id="secTransactions">
+          <button class="collapse-header" data-target="secTransactionsBody">
+            <span class="collapse-icon">▶</span> Transaction Analysis <span class="tab-count" id="cntTx">0</span>
+          </button>
+          <div class="collapse-body collapsed" id="secTransactionsBody"></div>
+        </div>
+
+        <div class="collapsible-section" id="secRules">
+          <button class="collapse-header" data-target="secRulesBody">
+            <span class="collapse-icon">▶</span> Extracted Rules <span class="tab-count" id="cntRules">0</span>
+          </button>
+          <div class="collapse-body collapsed" id="secRulesBody"></div>
+        </div>
+
+        <div class="collapsible-section" id="secConflicts">
+          <button class="collapse-header" data-target="secConflictsBody">
+            <span class="collapse-icon">▶</span> Rule Conflicts <span class="tab-count" id="cntConflicts">0</span>
+          </button>
+          <div class="collapse-body collapsed" id="secConflictsBody"></div>
+        </div>
+
+        <div class="collapsible-section" id="secGaps">
+          <button class="collapse-header" data-target="secGapsBody">
+            <span class="collapse-icon">▶</span> Policy Gaps <span class="tab-count" id="cntGaps">0</span>
+          </button>
+          <div class="collapse-body collapsed" id="secGapsBody"></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><p>PolicyGuard v2.0 — Every decision is <strong>Explainable</strong>, <strong>Traceable</strong>, <strong>Reproducible</strong></p></footer>
+  <script src="app.js"></script>
+</body>
+</html>

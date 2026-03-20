@@ -1,0 +1,14 @@
+{
+  "name": "data-policy-compliance-agent",
+  "version": "1.0.0",
+  "description": "Enterprise-Grade Data Policy Compliance Agent - Converts policy text into executable rules and validates transactions",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "run": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^2.1.1"
+  }
+}
