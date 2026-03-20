@@ -253,3 +253,25 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-0);color:v
 ::-webkit-scrollbar-thumb{background:hsla(225,20%,28%,.5);border-radius:999px}
 
 .no-results-msg{text-align:center;padding:20px;color:var(--t3);font-size:.84rem}
+
+/* Toast animations */
+@keyframes toastIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Risk score bar */
+.risk-bar-row{display:flex;align-items:center;gap:8px;margin:6px 0 10px}
+.risk-label{font-size:.65rem;color:var(--t3);font-weight:700;min-width:28px;text-transform:uppercase;letter-spacing:.04em}
+.risk-bar-track{flex:1;height:5px;background:var(--glass-b);border-radius:999px;overflow:hidden}
+.risk-bar-fill{height:100%;border-radius:999px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.risk-val{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;min-width:24px;text-align:right}
+
+/* Transaction amount */
+.tx-amount{font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--t1);margin:2px 0 8px;letter-spacing:-.01em}
+
+/* AI method badge */
+.ai-method-badge{display:inline-block;margin-top:10px;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:999px}
+.ai-method-badge.ok{background:hsla(178,70%,50%,.12);color:var(--teal)}
+.ai-method-badge.warn{background:var(--high-bg);color:var(--high)}
+.ai-method-badge.info{background:var(--blue-g);color:var(--blue)}
+
+/* Export button show state */
+#exportBtn{display:none}

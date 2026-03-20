@@ -1,14 +1,21 @@
 {
-  "name": "data-policy-compliance-agent",
-  "version": "1.0.0",
-  "description": "Enterprise-Grade Data Policy Compliance Agent - Converts policy text into executable rules and validates transactions",
-  "main": "index.js",
+  "name": "policyguard",
+  "version": "2.1.0",
+  "description": "Production API compliance evaluation system",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "run": "node index.js"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "multer": "^2.1.1"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "groq-sdk": "^0.3.3",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

@@ -1,74 +1,73 @@
 {
   "metadata": {
     "pipeline_version": "2.0.0",
-    "executed_at": "2026-03-20T12:53:29.584Z",
-    "total_rules_extracted": 11,
-    "total_rules_valid": 11,
-    "total_transactions_evaluated": 10,
-    "total_conflicts_detected": 14,
-    "total_violations": 10,
-    "total_gaps_identified": 8
+    "executed_at": "2026-03-20T20:19:12.208Z",
+    "total_rules_extracted": 5,
+    "total_rules_valid": 5,
+    "total_transactions_evaluated": 8,
+    "total_conflicts_detected": 6,
+    "total_violations": 5,
+    "total_gaps_identified": 3
   },
-  "ai_summary": "10 out of 10 transactions violated compliance policy (100.0% violation rate). 6 critical risks detected requiring immediate attention. Rule R1 was most frequently triggered (7 times). 8 transactions were automatically blocked.",
+  "ai_summary": "5 out of 8 transactions violated compliance policy (62.5% violation rate). 1 critical risk detected requiring immediate attention. Rule R1 was most frequently triggered (4 times). 3 transactions were automatically blocked.",
   "recommendations": [
     "Immediately review all critical-severity transactions for regulatory breach risk.",
-    "Resolve 14 detected rule conflicts to ensure consistent enforcement.",
-    "Address 3 policy gaps to improve compliance coverage.",
-    "High violation rate suggests overly strict policies or suspicious dataset. Consider threshold review."
+    "Resolve 6 detected rule conflicts to ensure consistent enforcement.",
+    "Address 3 policy gaps to improve compliance coverage."
   ],
   "analytics": {
-    "total_transactions": 10,
-    "violations": 10,
-    "passed": 0,
-    "violation_rate": "100.0%",
-    "critical_count": 6,
+    "total_transactions": 8,
+    "violations": 5,
+    "passed": 3,
+    "violation_rate": "62.5%",
+    "critical_count": 1,
     "severity_distribution": {
-      "critical": 6,
-      "high": 3,
-      "medium": 0,
-      "low": 1,
-      "none": 0
+      "critical": 1,
+      "high": 2,
+      "medium": 2,
+      "low": 0,
+      "none": 3
     },
     "action_distribution": {
-      "block": 8,
+      "block": 3,
       "flag": 2,
-      "allow": 0
+      "allow": 3
     },
     "top_rules_triggered": [
       {
         "rule_id": "R1",
-        "trigger_count": 7,
+        "trigger_count": 4,
         "description": "Flag any single transaction exceeding $10,000 for manual compliance review"
       },
       {
+        "rule_id": "R4",
+        "trigger_count": 1,
+        "description": "Block and escalate any transaction exceeding $50,000 pending manual approval"
+      },
+      {
         "rule_id": "R2",
-        "trigger_count": 4,
+        "trigger_count": 1,
         "description": "Block transactions originating from or destined to sanctioned countries"
       },
       {
-        "rule_id": "R3",
-        "trigger_count": 4,
-        "description": "Flag high-frequency transactions (>5 in 24h) for non-VIP accounts"
-      },
-      {
-        "rule_id": "R7",
-        "trigger_count": 4,
-        "description": "Block all outgoing transactions for accounts with risk score > 80"
+        "rule_id": "R5",
+        "trigger_count": 1,
+        "description": "Block transactions exceeding $10,000 from accounts less than 30 days old"
       },
       {
         "rule_id": "R8",
-        "trigger_count": 4,
+        "trigger_count": 1,
         "description": "Flag international transactions exceeding $25,000 for enhanced due diligence"
       }
     ],
     "risk_score_stats": {
-      "average": 65,
-      "max": 92,
-      "min": 30
+      "average": 46,
+      "max": 99,
+      "min": 5
     },
-    "total_rules": 11,
-    "total_conflicts": 14,
-    "total_gaps": 8
+    "total_rules": 5,
+    "total_conflicts": 6,
+    "total_gaps": 3
   },
   "rules": [
     {
@@ -120,26 +119,6 @@
       "depends_on": []
     },
     {
-      "rule_id": "R3",
-      "description": "Flag high-frequency transactions (>5 in 24h) for non-VIP accounts",
-      "conditions": [
-        {
-          "field": "user_tx_count_24h",
-          "operator": ">",
-          "value": 5
-        },
-        {
-          "field": "is_vip",
-          "operator": "==",
-          "value": false
-        }
-      ],
-      "action": "flag",
-      "severity": "low",
-      "scope": "user",
-      "depends_on": []
-    },
-    {
       "rule_id": "R4",
       "description": "Block and escalate any transaction exceeding $50,000 pending manual approval",
       "conditions": [
@@ -175,41 +154,6 @@
       "depends_on": []
     },
     {
-      "rule_id": "R6",
-      "description": "Flag transactions >$5,000 from dormant accounts (180+ days inactive)",
-      "conditions": [
-        {
-          "field": "account_dormant_days",
-          "operator": ">=",
-          "value": 180
-        },
-        {
-          "field": "transaction_amount",
-          "operator": ">",
-          "value": 5000
-        }
-      ],
-      "action": "flag",
-      "severity": "high",
-      "scope": "account",
-      "depends_on": []
-    },
-    {
-      "rule_id": "R7",
-      "description": "Block all outgoing transactions for accounts with risk score > 80",
-      "conditions": [
-        {
-          "field": "risk_score",
-          "operator": ">",
-          "value": 80
-        }
-      ],
-      "action": "block",
-      "severity": "critical",
-      "scope": "account",
-      "depends_on": []
-    },
-    {
       "rule_id": "R8",
       "description": "Flag international transactions exceeding $25,000 for enhanced due diligence",
       "conditions": [
@@ -228,61 +172,11 @@
       "severity": "medium",
       "scope": "transaction",
       "depends_on": []
-    },
-    {
-      "rule_id": "R9",
-      "description": "Flag transactions with currency conversion spread exceeding 5% above mid-market rate",
-      "conditions": [
-        {
-          "field": "currency_spread_pct",
-          "operator": ">",
-          "value": 5
-        }
-      ],
-      "action": "flag",
-      "severity": "medium",
-      "scope": "transaction",
-      "depends_on": []
-    },
-    {
-      "rule_id": "R10",
-      "description": "Block users exceeding $500,000 cumulative daily transaction volume",
-      "conditions": [
-        {
-          "field": "cumulative_daily_volume",
-          "operator": ">",
-          "value": 500000
-        }
-      ],
-      "action": "block",
-      "severity": "high",
-      "scope": "user",
-      "depends_on": []
-    },
-    {
-      "rule_id": "R11",
-      "description": "Hold weekend/holiday transactions exceeding $15,000 for next-business-day review",
-      "conditions": [
-        {
-          "field": "is_weekend",
-          "operator": "==",
-          "value": true
-        },
-        {
-          "field": "transaction_amount",
-          "operator": ">",
-          "value": 15000
-        }
-      ],
-      "action": "flag",
-      "severity": "medium",
-      "scope": "transaction",
-      "depends_on": []
     }
   ],
   "validation_report": {
-    "total": 11,
-    "valid": 11,
+    "total": 5,
+    "valid": 5,
     "rejected": 0,
     "details": [
       {
@@ -292,11 +186,6 @@
       },
       {
         "rule_id": "R2",
-        "valid": true,
-        "errors": []
-      },
-      {
-        "rule_id": "R3",
         "valid": true,
         "errors": []
       },
@@ -311,32 +200,7 @@
         "errors": []
       },
       {
-        "rule_id": "R6",
-        "valid": true,
-        "errors": []
-      },
-      {
-        "rule_id": "R7",
-        "valid": true,
-        "errors": []
-      },
-      {
         "rule_id": "R8",
-        "valid": true,
-        "errors": []
-      },
-      {
-        "rule_id": "R9",
-        "valid": true,
-        "errors": []
-      },
-      {
-        "rule_id": "R10",
-        "valid": true,
-        "errors": []
-      },
-      {
-        "rule_id": "R11",
         "valid": true,
         "errors": []
       }
@@ -357,33 +221,15 @@
     },
     {
       "rule_1": "R1",
-      "rule_2": "R6",
-      "type": "priority",
-      "reason": "Rules R1 and R6 share overlapping conditions on field(s) [transaction_amount] with the same action \"flag\" but different severities: \"medium\" vs \"high\". The higher severity should be applied."
-    },
-    {
-      "rule_1": "R1",
       "rule_2": "R8",
-      "type": "overlap",
-      "reason": "Rules R1 and R8 overlap on field(s) [transaction_amount] with the same action and severity. R1 has 1 conditions while R8 has 2 conditions, making one a broader version of the other."
-    },
-    {
-      "rule_1": "R1",
-      "rule_2": "R11",
-      "type": "overlap",
-      "reason": "Rules R1 and R11 overlap on field(s) [transaction_amount] with the same action and severity. R1 has 1 conditions while R11 has 2 conditions, making one a broader version of the other."
+      "type": "subsumption",
+      "reason": "Rule R1 subsumes Rule R8. R1 has fewer conditions and acts as a broader version, rendering the additional conditions in R8 potentially redundant."
     },
     {
       "rule_1": "R4",
       "rule_2": "R5",
-      "type": "overlap",
-      "reason": "Rules R4 and R5 overlap on field(s) [transaction_amount] with the same action and severity. R4 has 1 conditions while R5 has 2 conditions, making one a broader version of the other."
-    },
-    {
-      "rule_1": "R4",
-      "rule_2": "R6",
-      "type": "contradiction",
-      "reason": "Rules R4 and R6 have overlapping conditions on field(s) [transaction_amount] but prescribe different actions: \"block\" vs \"flag\". When both trigger simultaneously, the more restrictive action (block > flag > allow) should take precedence."
+      "type": "subsumption",
+      "reason": "Rule R4 subsumes Rule R5. R4 has fewer conditions and acts as a broader version, rendering the additional conditions in R5 potentially redundant."
     },
     {
       "rule_1": "R4",
@@ -392,157 +238,57 @@
       "reason": "Rules R4 and R8 have overlapping conditions on field(s) [transaction_amount] but prescribe different actions: \"block\" vs \"flag\". When both trigger simultaneously, the more restrictive action (block > flag > allow) should take precedence."
     },
     {
-      "rule_1": "R4",
-      "rule_2": "R11",
-      "type": "contradiction",
-      "reason": "Rules R4 and R11 have overlapping conditions on field(s) [transaction_amount] but prescribe different actions: \"block\" vs \"flag\". When both trigger simultaneously, the more restrictive action (block > flag > allow) should take precedence."
-    },
-    {
-      "rule_1": "R5",
-      "rule_2": "R6",
-      "type": "contradiction",
-      "reason": "Rules R5 and R6 have overlapping conditions on field(s) [transaction_amount] but prescribe different actions: \"block\" vs \"flag\". When both trigger simultaneously, the more restrictive action (block > flag > allow) should take precedence."
-    },
-    {
       "rule_1": "R5",
       "rule_2": "R8",
       "type": "contradiction",
       "reason": "Rules R5 and R8 have overlapping conditions on field(s) [transaction_amount] but prescribe different actions: \"block\" vs \"flag\". When both trigger simultaneously, the more restrictive action (block > flag > allow) should take precedence."
-    },
-    {
-      "rule_1": "R5",
-      "rule_2": "R11",
-      "type": "contradiction",
-      "reason": "Rules R5 and R11 have overlapping conditions on field(s) [transaction_amount] but prescribe different actions: \"block\" vs \"flag\". When both trigger simultaneously, the more restrictive action (block > flag > allow) should take precedence."
-    },
-    {
-      "rule_1": "R6",
-      "rule_2": "R8",
-      "type": "priority",
-      "reason": "Rules R6 and R8 share overlapping conditions on field(s) [transaction_amount] with the same action \"flag\" but different severities: \"high\" vs \"medium\". The higher severity should be applied."
-    },
-    {
-      "rule_1": "R6",
-      "rule_2": "R11",
-      "type": "priority",
-      "reason": "Rules R6 and R11 share overlapping conditions on field(s) [transaction_amount] with the same action \"flag\" but different severities: \"high\" vs \"medium\". The higher severity should be applied."
     }
   ],
   "transactions_analysis": [
     {
-      "transaction_id": "TXN-1001",
-      "violated": true,
-      "triggered_rules": [
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R7",
-        "R8",
-        "R9",
-        "R10",
-        "R11"
-      ],
-      "severity": "critical",
-      "action": "block",
+      "transaction_id": "TXN-001",
+      "violated": false,
+      "triggered_rules": [],
+      "severity": "none",
+      "action": "allow",
       "causal_chain": [
-        "[R1] Condition: transaction_amount = 95000 > 10000 → MET",
-        "[R2] Condition: sender_country = \"US\" is not in [KP, IR, SY, CU, UA-43] → NOT MET",
-        "[R2] Condition: receiver_country = \"KP\" is in [KP, IR, SY, CU, UA-43] → MET",
-        "[R3] Condition: user_tx_count_24h = 8 > 5 → MET",
-        "[R3] Condition: is_vip = false == false → MET",
-        "[R4] Condition: transaction_amount = 95000 > 50000 → MET",
-        "[R5] Condition: transaction_amount = 95000 > 10000 → MET",
-        "[R5] Condition: account_age_days = 10 < 30 → MET",
-        "[R7] Condition: risk_score = 92 > 80 → MET",
-        "[R8] Condition: is_international = true == true → MET",
-        "[R8] Condition: transaction_amount = 95000 > 25000 → MET",
-        "[R9] Condition: currency_spread_pct = 7.5 > 5 → MET",
-        "[R10] Condition: cumulative_daily_volume = 620000 > 500000 → MET",
-        "[R11] Condition: is_weekend = true == true → MET",
-        "[R11] Condition: transaction_amount = 95000 > 15000 → MET",
-        "Conflict resolution: applied most restrictive action \"block\" with severity \"critical\"",
-        "Final decision: Transaction BLOCKED with CRITICAL severity"
+        "Final decision: Transaction CLEARED — no rules triggered"
       ],
-      "explanation": "Transaction TXN-1001 (amount: $95,000) must be BLOCKED with CRITICAL severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R2: Block transactions originating from or destined to sanctioned countries; R3: Flag high-frequency transactions (>5 in 24h) for non-VIP accounts; R4: Block and escalate any transaction exceeding $50,000 pending manual approval; R5: Block transactions exceeding $10,000 from accounts less than 30 days old; R7: Block all outgoing transactions for accounts with risk score > 80; R8: Flag international transactions exceeding $25,000 for enhanced due diligence; R9: Flag transactions with currency conversion spread exceeding 5% above mid-market rate; R10: Block users exceeding $500,000 cumulative daily transaction volume; R11: Hold weekend/holiday transactions exceeding $15,000 for next-business-day review]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-001 (amount: $1,500) passed all compliance checks. No rules were triggered. The transaction is cleared for processing."
     },
     {
-      "transaction_id": "TXN-1002",
+      "transaction_id": "TXN-002",
       "violated": true,
       "triggered_rules": [
-        "R1",
-        "R2",
-        "R4",
-        "R5",
-        "R7",
-        "R8"
+        "R1"
       ],
-      "severity": "critical",
-      "action": "block",
-      "causal_chain": [
-        "[R1] Condition: transaction_amount = 55000 > 10000 → MET",
-        "[R2] Condition: sender_country = \"US\" is not in [KP, IR, SY, CU, UA-43] → NOT MET",
-        "[R2] Condition: receiver_country = \"IR\" is in [KP, IR, SY, CU, UA-43] → MET",
-        "[R4] Condition: transaction_amount = 55000 > 50000 → MET",
-        "[R5] Condition: transaction_amount = 55000 > 10000 → MET",
-        "[R5] Condition: account_age_days = 5 < 30 → MET",
-        "[R7] Condition: risk_score = 88 > 80 → MET",
-        "[R8] Condition: is_international = true == true → MET",
-        "[R8] Condition: transaction_amount = 55000 > 25000 → MET",
-        "Conflict resolution: applied most restrictive action \"block\" with severity \"critical\"",
-        "Final decision: Transaction BLOCKED with CRITICAL severity"
-      ],
-      "explanation": "Transaction TXN-1002 (amount: $55,000) must be BLOCKED with CRITICAL severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R2: Block transactions originating from or destined to sanctioned countries; R4: Block and escalate any transaction exceeding $50,000 pending manual approval; R5: Block transactions exceeding $10,000 from accounts less than 30 days old; R7: Block all outgoing transactions for accounts with risk score > 80; R8: Flag international transactions exceeding $25,000 for enhanced due diligence]. The most restrictive action \"block\" was applied based on the rule hierarchy."
-    },
-    {
-      "transaction_id": "TXN-1003",
-      "violated": true,
-      "triggered_rules": [
-        "R1",
-        "R2",
-        "R3",
-        "R6",
-        "R9"
-      ],
-      "severity": "critical",
-      "action": "block",
+      "severity": "medium",
+      "action": "flag",
       "causal_chain": [
         "[R1] Condition: transaction_amount = 12000 > 10000 → MET",
-        "[R2] Condition: sender_country = \"DE\" is not in [KP, IR, SY, CU, UA-43] → NOT MET",
-        "[R2] Condition: receiver_country = \"SY\" is in [KP, IR, SY, CU, UA-43] → MET",
-        "[R3] Condition: user_tx_count_24h = 6 > 5 → MET",
-        "[R3] Condition: is_vip = false == false → MET",
-        "[R6] Condition: account_dormant_days = 195 ≥ 180 → MET",
-        "[R6] Condition: transaction_amount = 12000 > 5000 → MET",
-        "[R9] Condition: currency_spread_pct = 6.1 > 5 → MET",
-        "Conflict resolution: applied most restrictive action \"block\" with severity \"critical\"",
-        "Final decision: Transaction BLOCKED with CRITICAL severity"
+        "Final decision: Transaction FLAGGED with MEDIUM severity"
       ],
-      "explanation": "Transaction TXN-1003 (amount: $12,000) must be BLOCKED with CRITICAL severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R2: Block transactions originating from or destined to sanctioned countries; R3: Flag high-frequency transactions (>5 in 24h) for non-VIP accounts; R6: Flag transactions >$5,000 from dormant accounts (180+ days inactive); R9: Flag transactions with currency conversion spread exceeding 5% above mid-market rate]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-002 (amount: $12,000) has been FLAGGED for review with MEDIUM severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review]. The most restrictive action \"flag\" was applied based on the rule hierarchy."
     },
     {
-      "transaction_id": "TXN-1004",
+      "transaction_id": "TXN-003",
       "violated": true,
       "triggered_rules": [
         "R1",
-        "R4",
-        "R8"
+        "R4"
       ],
       "severity": "high",
       "action": "block",
       "causal_chain": [
-        "[R1] Condition: transaction_amount = 250000 > 10000 → MET",
-        "[R4] Condition: transaction_amount = 250000 > 50000 → MET",
-        "[R8] Condition: is_international = true == true → MET",
-        "[R8] Condition: transaction_amount = 250000 > 25000 → MET",
+        "[R1] Condition: transaction_amount = 60000 > 10000 → MET",
+        "[R4] Condition: transaction_amount = 60000 > 50000 → MET",
         "Conflict resolution: applied most restrictive action \"block\" with severity \"high\"",
         "Final decision: Transaction BLOCKED with HIGH severity"
       ],
-      "explanation": "Transaction TXN-1004 (amount: $2,50,000) must be BLOCKED with HIGH severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R4: Block and escalate any transaction exceeding $50,000 pending manual approval; R8: Flag international transactions exceeding $25,000 for enhanced due diligence]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-003 (amount: $60,000) must be BLOCKED with HIGH severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R4: Block and escalate any transaction exceeding $50,000 pending manual approval]. The most restrictive action \"block\" was applied based on the rule hierarchy."
     },
     {
-      "transaction_id": "TXN-1005",
+      "transaction_id": "TXN-004",
       "violated": true,
       "triggered_rules": [
         "R2"
@@ -550,150 +296,72 @@
       "severity": "critical",
       "action": "block",
       "causal_chain": [
-        "[R2] Condition: sender_country = \"US\" is not in [KP, IR, SY, CU, UA-43] → NOT MET",
-        "[R2] Condition: receiver_country = \"CU\" is in [KP, IR, SY, CU, UA-43] → MET",
+        "[R2] Condition: sender_country = \"IR\" is in [KP, IR, SY, CU, UA-43] → MET",
+        "[R2] Condition: receiver_country = \"US\" is not in [KP, IR, SY, CU, UA-43] → NOT MET",
         "Final decision: Transaction BLOCKED with CRITICAL severity"
       ],
-      "explanation": "Transaction TXN-1005 (amount: $8,000) must be BLOCKED with CRITICAL severity. Triggered rules: [R2: Block transactions originating from or destined to sanctioned countries]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-004 (amount: $300) must be BLOCKED with CRITICAL severity. Triggered rules: [R2: Block transactions originating from or destined to sanctioned countries]. The most restrictive action \"block\" was applied based on the rule hierarchy."
     },
     {
-      "transaction_id": "TXN-1006",
+      "transaction_id": "TXN-005",
+      "violated": false,
+      "triggered_rules": [],
+      "severity": "none",
+      "action": "allow",
+      "causal_chain": [
+        "Final decision: Transaction CLEARED — no rules triggered"
+      ],
+      "explanation": "Transaction TXN-005 (amount: $50) passed all compliance checks. No rules were triggered. The transaction is cleared for processing."
+    },
+    {
+      "transaction_id": "TXN-006",
       "violated": true,
       "triggered_rules": [
         "R1",
-        "R5",
-        "R11"
+        "R5"
       ],
       "severity": "high",
       "action": "block",
       "causal_chain": [
-        "[R1] Condition: transaction_amount = 15500 > 10000 → MET",
-        "[R5] Condition: transaction_amount = 15500 > 10000 → MET",
-        "[R5] Condition: account_age_days = 22 < 30 → MET",
-        "[R11] Condition: is_weekend = true == true → MET",
-        "[R11] Condition: transaction_amount = 15500 > 15000 → MET",
+        "[R1] Condition: transaction_amount = 15000 > 10000 → MET",
+        "[R5] Condition: transaction_amount = 15000 > 10000 → MET",
+        "[R5] Condition: account_age_days = 5 < 30 → MET",
         "Conflict resolution: applied most restrictive action \"block\" with severity \"high\"",
         "Final decision: Transaction BLOCKED with HIGH severity"
       ],
-      "explanation": "Transaction TXN-1006 (amount: $15,500) must be BLOCKED with HIGH severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R5: Block transactions exceeding $10,000 from accounts less than 30 days old; R11: Hold weekend/holiday transactions exceeding $15,000 for next-business-day review]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-006 (amount: $15,000) must be BLOCKED with HIGH severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R5: Block transactions exceeding $10,000 from accounts less than 30 days old]. The most restrictive action \"block\" was applied based on the rule hierarchy."
     },
     {
-      "transaction_id": "TXN-1007",
-      "violated": true,
-      "triggered_rules": [
-        "R6"
-      ],
-      "severity": "high",
-      "action": "flag",
-      "causal_chain": [
-        "[R6] Condition: account_dormant_days = 210 ≥ 180 → MET",
-        "[R6] Condition: transaction_amount = 7500 > 5000 → MET",
-        "Final decision: Transaction FLAGGED with HIGH severity"
-      ],
-      "explanation": "Transaction TXN-1007 (amount: $7,500) has been FLAGGED for review with HIGH severity. Triggered rules: [R6: Flag transactions >$5,000 from dormant accounts (180+ days inactive)]. The most restrictive action \"flag\" was applied based on the rule hierarchy."
-    },
-    {
-      "transaction_id": "TXN-1008",
+      "transaction_id": "TXN-007",
       "violated": true,
       "triggered_rules": [
         "R1",
-        "R3",
-        "R7",
-        "R8",
-        "R9"
+        "R8"
       ],
-      "severity": "critical",
-      "action": "block",
+      "severity": "medium",
+      "action": "flag",
       "causal_chain": [
-        "[R1] Condition: transaction_amount = 30000 > 10000 → MET",
-        "[R3] Condition: user_tx_count_24h = 7 > 5 → MET",
-        "[R3] Condition: is_vip = false == false → MET",
-        "[R7] Condition: risk_score = 82 > 80 → MET",
+        "[R1] Condition: transaction_amount = 28000 > 10000 → MET",
         "[R8] Condition: is_international = true == true → MET",
-        "[R8] Condition: transaction_amount = 30000 > 25000 → MET",
-        "[R9] Condition: currency_spread_pct = 5.8 > 5 → MET",
-        "Conflict resolution: applied most restrictive action \"block\" with severity \"critical\"",
-        "Final decision: Transaction BLOCKED with CRITICAL severity"
+        "[R8] Condition: transaction_amount = 28000 > 25000 → MET",
+        "Conflict resolution: applied most restrictive action \"flag\" with severity \"medium\"",
+        "Final decision: Transaction FLAGGED with MEDIUM severity"
       ],
-      "explanation": "Transaction TXN-1008 (amount: $30,000) must be BLOCKED with CRITICAL severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R3: Flag high-frequency transactions (>5 in 24h) for non-VIP accounts; R7: Block all outgoing transactions for accounts with risk score > 80; R8: Flag international transactions exceeding $25,000 for enhanced due diligence; R9: Flag transactions with currency conversion spread exceeding 5% above mid-market rate]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-007 (amount: $28,000) has been FLAGGED for review with MEDIUM severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R8: Flag international transactions exceeding $25,000 for enhanced due diligence]. The most restrictive action \"flag\" was applied based on the rule hierarchy."
     },
     {
-      "transaction_id": "TXN-1009",
-      "violated": true,
-      "triggered_rules": [
-        "R3"
-      ],
-      "severity": "low",
-      "action": "flag",
+      "transaction_id": "TXN-008",
+      "violated": false,
+      "triggered_rules": [],
+      "severity": "none",
+      "action": "allow",
       "causal_chain": [
-        "[R3] Condition: user_tx_count_24h = 9 > 5 → MET",
-        "[R3] Condition: is_vip = false == false → MET",
-        "Final decision: Transaction FLAGGED with LOW severity"
+        "Final decision: Transaction CLEARED — no rules triggered"
       ],
-      "explanation": "Transaction TXN-1009 (amount: $4,200) has been FLAGGED for review with LOW severity. Triggered rules: [R3: Flag high-frequency transactions (>5 in 24h) for non-VIP accounts]. The most restrictive action \"flag\" was applied based on the rule hierarchy."
-    },
-    {
-      "transaction_id": "TXN-1010",
-      "violated": true,
-      "triggered_rules": [
-        "R1",
-        "R7",
-        "R11"
-      ],
-      "severity": "critical",
-      "action": "block",
-      "causal_chain": [
-        "[R1] Condition: transaction_amount = 18000 > 10000 → MET",
-        "[R7] Condition: risk_score = 85 > 80 → MET",
-        "[R11] Condition: is_weekend = true == true → MET",
-        "[R11] Condition: transaction_amount = 18000 > 15000 → MET",
-        "Conflict resolution: applied most restrictive action \"block\" with severity \"critical\"",
-        "Final decision: Transaction BLOCKED with CRITICAL severity"
-      ],
-      "explanation": "Transaction TXN-1010 (amount: $18,000) must be BLOCKED with CRITICAL severity. Triggered rules: [R1: Flag any single transaction exceeding $10,000 for manual compliance review; R7: Block all outgoing transactions for accounts with risk score > 80; R11: Hold weekend/holiday transactions exceeding $15,000 for next-business-day review]. The most restrictive action \"block\" was applied based on the rule hierarchy."
+      "explanation": "Transaction TXN-008 (amount: $9,500) passed all compliance checks. No rules were triggered. The transaction is cleared for processing."
     }
   ],
   "gap_analysis": [
-    {
-      "rule_id": "R1",
-      "status": "redundant",
-      "hit_count": 7,
-      "hit_rate": "70.0%",
-      "reason": "Rule \"Flag any single transaction exceeding $10,000 for manual compliance review\" overlaps with rule(s) [R8, R11] and may be partially redundant.",
-      "recommendation": "Consider merging overlapping rules or adding distinguishing conditions to reduce evaluation overhead and avoid conflicting actions."
-    },
-    {
-      "rule_id": "R4",
-      "status": "redundant",
-      "hit_count": 3,
-      "hit_rate": "30.0%",
-      "reason": "Rule \"Block and escalate any transaction exceeding $50,000 pending manual approval\" overlaps with rule(s) [R5] and may be partially redundant.",
-      "recommendation": "Consider merging overlapping rules or adding distinguishing conditions to reduce evaluation overhead and avoid conflicting actions."
-    },
-    {
-      "rule_id": "R5",
-      "status": "redundant",
-      "hit_count": 3,
-      "hit_rate": "30.0%",
-      "reason": "Rule \"Block transactions exceeding $10,000 from accounts less than 30 days old\" overlaps with rule(s) [R4] and may be partially redundant.",
-      "recommendation": "Consider merging overlapping rules or adding distinguishing conditions to reduce evaluation overhead and avoid conflicting actions."
-    },
-    {
-      "rule_id": "R8",
-      "status": "redundant",
-      "hit_count": 4,
-      "hit_rate": "40.0%",
-      "reason": "Rule \"Flag international transactions exceeding $25,000 for enhanced due diligence\" overlaps with rule(s) [R1] and may be partially redundant.",
-      "recommendation": "Consider merging overlapping rules or adding distinguishing conditions to reduce evaluation overhead and avoid conflicting actions."
-    },
-    {
-      "rule_id": "R11",
-      "status": "redundant",
-      "hit_count": 3,
-      "hit_rate": "30.0%",
-      "reason": "Rule \"Hold weekend/holiday transactions exceeding $15,000 for next-business-day review\" overlaps with rule(s) [R1] and may be partially redundant.",
-      "recommendation": "Consider merging overlapping rules or adding distinguishing conditions to reduce evaluation overhead and avoid conflicting actions."
-    },
     {
       "rule_id": "MISSING_CUMULATIVE_AMOUNT_24H",
       "status": "missing",
@@ -721,261 +389,168 @@
   ],
   "audit_log": [
     {
-      "timestamp": "2026-03-20T12:53:29.580Z",
+      "timestamp": "2026-03-20T20:19:12.205Z",
       "elapsed_ms": 0,
       "event_type": "PIPELINE_START",
-      "policy_chars": 1535,
-      "transaction_count": 10
+      "policy_chars": 448,
+      "transaction_count": 8
     },
     {
-      "timestamp": "2026-03-20T12:53:29.580Z",
-      "elapsed_ms": 0,
+      "timestamp": "2026-03-20T20:19:12.207Z",
+      "elapsed_ms": 2,
       "event_type": "RULES_EXTRACTED",
-      "count": 11
+      "count": 5
     },
     {
-      "timestamp": "2026-03-20T12:53:29.580Z",
-      "elapsed_ms": 0,
+      "timestamp": "2026-03-20T20:19:12.207Z",
+      "elapsed_ms": 2,
       "event_type": "RULES_VALIDATED",
-      "valid": 11,
+      "valid": 5,
       "rejected": 0
     },
     {
-      "timestamp": "2026-03-20T12:53:29.581Z",
-      "elapsed_ms": 1,
+      "timestamp": "2026-03-20T20:19:12.207Z",
+      "elapsed_ms": 2,
       "event_type": "CONFLICTS_DETECTED",
-      "count": 14
+      "count": 6
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1001",
-      "rules_triggered": 10,
-      "action": "block",
-      "severity": "critical"
+      "transaction_id": "TXN-001",
+      "rules_triggered": 0,
+      "action": "allow",
+      "severity": "none"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
+      "elapsed_ms": 3,
+      "event_type": "TRANSACTION_EVALUATED",
+      "transaction_id": "TXN-002",
+      "rules_triggered": 1,
+      "action": "flag",
+      "severity": "medium"
+    },
+    {
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "VIOLATION",
-      "transaction_id": "TXN-1001",
+      "transaction_id": "TXN-002",
       "rules": [
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R7",
-        "R8",
-        "R9",
-        "R10",
-        "R11"
+        "R1"
       ],
-      "severity": "critical"
+      "severity": "medium"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1002",
-      "rules_triggered": 6,
-      "action": "block",
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "VIOLATION",
-      "transaction_id": "TXN-1002",
-      "rules": [
-        "R1",
-        "R2",
-        "R4",
-        "R5",
-        "R7",
-        "R8"
-      ],
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1003",
-      "rules_triggered": 5,
-      "action": "block",
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "VIOLATION",
-      "transaction_id": "TXN-1003",
-      "rules": [
-        "R1",
-        "R2",
-        "R3",
-        "R6",
-        "R9"
-      ],
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1004",
-      "rules_triggered": 3,
+      "transaction_id": "TXN-003",
+      "rules_triggered": 2,
       "action": "block",
       "severity": "high"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "VIOLATION",
-      "transaction_id": "TXN-1004",
+      "transaction_id": "TXN-003",
       "rules": [
         "R1",
-        "R4",
-        "R8"
+        "R4"
       ],
       "severity": "high"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1005",
+      "transaction_id": "TXN-004",
       "rules_triggered": 1,
       "action": "block",
       "severity": "critical"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "VIOLATION",
-      "transaction_id": "TXN-1005",
+      "transaction_id": "TXN-004",
       "rules": [
         "R2"
       ],
       "severity": "critical"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1006",
-      "rules_triggered": 3,
+      "transaction_id": "TXN-005",
+      "rules_triggered": 0,
+      "action": "allow",
+      "severity": "none"
+    },
+    {
+      "timestamp": "2026-03-20T20:19:12.208Z",
+      "elapsed_ms": 3,
+      "event_type": "TRANSACTION_EVALUATED",
+      "transaction_id": "TXN-006",
+      "rules_triggered": 2,
       "action": "block",
       "severity": "high"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "VIOLATION",
-      "transaction_id": "TXN-1006",
+      "transaction_id": "TXN-006",
       "rules": [
         "R1",
-        "R5",
-        "R11"
+        "R5"
       ],
       "severity": "high"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1007",
-      "rules_triggered": 1,
+      "transaction_id": "TXN-007",
+      "rules_triggered": 2,
       "action": "flag",
-      "severity": "high"
+      "severity": "medium"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "VIOLATION",
-      "transaction_id": "TXN-1007",
-      "rules": [
-        "R6"
-      ],
-      "severity": "high"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1008",
-      "rules_triggered": 5,
-      "action": "block",
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "VIOLATION",
-      "transaction_id": "TXN-1008",
+      "transaction_id": "TXN-007",
       "rules": [
         "R1",
-        "R3",
-        "R7",
-        "R8",
-        "R9"
+        "R8"
       ],
-      "severity": "critical"
+      "severity": "medium"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
       "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1009",
-      "rules_triggered": 1,
-      "action": "flag",
-      "severity": "low"
+      "transaction_id": "TXN-008",
+      "rules_triggered": 0,
+      "action": "allow",
+      "severity": "none"
     },
     {
-      "timestamp": "2026-03-20T12:53:29.583Z",
+      "timestamp": "2026-03-20T20:19:12.208Z",
       "elapsed_ms": 3,
-      "event_type": "VIOLATION",
-      "transaction_id": "TXN-1009",
-      "rules": [
-        "R3"
-      ],
-      "severity": "low"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "TRANSACTION_EVALUATED",
-      "transaction_id": "TXN-1010",
-      "rules_triggered": 3,
-      "action": "block",
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.583Z",
-      "elapsed_ms": 3,
-      "event_type": "VIOLATION",
-      "transaction_id": "TXN-1010",
-      "rules": [
-        "R1",
-        "R7",
-        "R11"
-      ],
-      "severity": "critical"
-    },
-    {
-      "timestamp": "2026-03-20T12:53:29.584Z",
-      "elapsed_ms": 4,
       "event_type": "GAP_ANALYSIS_COMPLETE",
-      "gaps_found": 8
+      "gaps_found": 3
     },
     {
-      "timestamp": "2026-03-20T12:53:29.584Z",
-      "elapsed_ms": 4,
+      "timestamp": "2026-03-20T20:19:12.208Z",
+      "elapsed_ms": 3,
       "event_type": "PIPELINE_COMPLETE",
-      "total_violations": 10,
-      "total_elapsed_ms": 4
+      "total_violations": 5,
+      "total_elapsed_ms": 3
     }
   ]
 }

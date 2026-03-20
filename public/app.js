@@ -1,9 +1,30 @@
 /**
  * PolicyGuard Dashboard — Frontend v2.0
  * AI summary, insights, charts, filters, collapsible sections, file upload, random data
+ * v2.1 fixes: toast notifications, risk bar, export, no double-eval
  */
 (function(){
 'use strict';
+
+// ── Toast Notification System ──
+const toastContainer = document.createElement('div');
+toastContainer.id = 'toast-container';
+toastContainer.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+document.body.appendChild(toastContainer);
+
+function toast(msg, type = 'info', duration = 3500) {
+  const colors = { info: '#3a7bd5', success: '#2ecc71', error: '#e04848', warn: '#e68a2e' };
+  const icons  = { info: 'ℹ️', success: '✅', error: '❌', warn: '⚠️' };
+  const el = document.createElement('div');
+  el.style.cssText = `background:#1a2035;border:1px solid ${colors[type]}55;border-left:3px solid ${colors[type]};color:#e6eaf3;padding:12px 16px;border-radius:10px;font-size:13px;max-width:320px;pointer-events:auto;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:flex;align-items:center;gap:10px;opacity:0;transform:translateX(30px);transition:all 0.3s ease;`;
+  el.innerHTML = `<span style="font-size:16px">${icons[type]}</span><span>${msg}</span>`;
+  toastContainer.appendChild(el);
+  requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(0)'; });
+  setTimeout(() => {
+    el.style.opacity = '0'; el.style.transform = 'translateX(30px)';
+    setTimeout(() => el.remove(), 350);
+  }, duration);
+}
 const $=id=>document.getElementById(id);
 const els={
   policyInput:$('policyInput'),txInput:$('transactionInput'),
@@ -46,25 +67,29 @@ function showProgress(){
 
 // ── API ──
 async function loadRandom(){
-  try{setStatus('running','Loading...');const r=await fetch('/api/random-sample'),d=await r.json();
+  try{
+    setStatus('running','Loading...');
+    const r=await fetch('/api/random-sample'),d=await r.json();
+    if(!r.ok){setStatus('error','Error');toast(d.error||'Failed to load dataset','error');return;}
     els.policyInput.value=d.policyText;els.txInput.value=JSON.stringify(d.transactions,null,2);
     els.charCount.textContent=d.policyText.length+' chars';valJson();setStatus('','Ready');
-  }catch(e){setStatus('error','Error');console.error(e)}
+    toast(`Loaded dataset: ${d.dataset_name||'random'} (${d.transactions.length} transactions)`,'info',2500);
+  }catch(e){setStatus('error','Error');console.error(e);toast('Failed to fetch random dataset','error')}
 }
 
 async function runPipeline(){
   const pt=els.policyInput.value.trim();let txs;
   try{txs=JSON.parse(els.txInput.value.trim());if(!Array.isArray(txs))throw 0}
-  catch{alert('Invalid JSON in transactions.');return}
-  if(!pt){alert('Provide a policy document.');return}
+  catch{toast('Invalid JSON in transactions field.','error');return}
+  if(!pt){toast('Please provide a policy document.','warn');return}
   setStatus('running','Executing...');
   const prog=showProgress();
   try{
     const[res]=await Promise.all([fetch('/api/run-pipeline',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({policyText:pt,transactions:txs})}),prog]);
     const r=await res.json();
-    if(res.ok){data=r;els.progress.style.display='none';renderAll(r);setStatus('done','Completed')}
-    else{els.progress.style.display='none';setStatus('error','Failed');alert(r.error)}
-  }catch(e){els.progress.style.display='none';setStatus('error','Error');console.error(e);alert('Pipeline failed.')}
+    if(res.ok){data=r;els.progress.style.display='none';renderAll(r);setStatus('done','Completed');toast(`Pipeline complete — ${r.analytics.violations} violation${r.analytics.violations!==1?'s':''} found`,'success')}
+    else{els.progress.style.display='none';setStatus('error','Failed');toast(r.error||'Pipeline failed','error')}
+  }catch(e){els.progress.style.display='none';setStatus('error','Error');console.error(e);toast('Pipeline request failed. Is the server running?','error')}
 }
 
 // ── File Upload ──
@@ -72,9 +97,9 @@ els.fileUpload.addEventListener('change',async(e)=>{
   const file=e.target.files[0];if(!file)return;
   const fd=new FormData();fd.append('policyFile',file);
   try{setStatus('running','Uploading...');const r=await fetch('/api/upload-policy',{method:'POST',body:fd}),d=await r.json();
-    if(r.ok){els.policyInput.value=d.policyText;els.charCount.textContent=d.policyText.length+' chars';setStatus('','Ready')}
-    else{setStatus('error','Error');alert(d.error)}
-  }catch(err){setStatus('error','Error');console.error(err)}
+    if(r.ok){els.policyInput.value=d.policyText;els.charCount.textContent=d.policyText.length+' chars';setStatus('','Ready');toast(`Policy uploaded: ${d.filename}`,'success')}
+    else{setStatus('error','Error');toast(d.error||'Upload failed','error')}
+  }catch(err){setStatus('error','Error');console.error(err);toast('Upload failed','error')}
   e.target.value='';
 });
 
@@ -83,7 +108,9 @@ function renderAll(d){
   els.empty.style.display='none';els.dash.style.display='block';
   renderAISummary(d);renderInsights(d);renderSummary(d);renderPie(d.transactions_analysis);renderBar(d);
   renderTransactions(d.transactions_analysis);renderRules(d.rules);renderConflicts(d.conflicts);renderGaps(d.gap_analysis);
-  updateCounts(d);initCollapsible();initFilters();
+  renderExportBar(d);updateCounts(d);initCollapsible();initFilters();
+  const expBtn = document.getElementById('exportBtn');
+  if (expBtn) expBtn.style.display = 'inline-flex';
   els.dash.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -93,6 +120,13 @@ function renderAISummary(d){
   if(d.recommendations&&d.recommendations.length>0){
     html+=`<div class="ai-recs">${d.recommendations.map(r=>`<div class="ai-rec">${esc(r)}</div>`).join('')}</div>`;
   }
+  const method = d.metadata && d.metadata.extraction_method;
+  const methodBadge = method === 'regex_fallback'
+    ? `<div class="ai-method-badge warn">⚠️ Regex fallback used — LLM extraction failed</div>`
+    : method === 'demo_mode'
+    ? `<div class="ai-method-badge info">🎯 Demo mode — sample data</div>`
+    : `<div class="ai-method-badge ok">🤖 AI extracted ${d.rules ? d.rules.length : 0} rules</div>`;
+  html += methodBadge;
   els.aiSummary.innerHTML=html;
 }
 
@@ -114,6 +148,13 @@ function renderSummary(d){
   anim($('valTotal'),a.total_transactions);anim($('valViolations'),a.violations);
   anim($('valCritical'),a.critical_count);anim($('valRisk'),a.risk_score_stats.average);
   anim($('valRuleCount'),a.total_rules);
+  // Risk bar
+  const avg=a.risk_score_stats.average||0,mx=a.risk_score_stats.max||0;
+  let existing=$('riskBarWrap');if(existing)existing.remove();
+  const wrap=document.createElement('div');wrap.id='riskBarWrap';
+  const col=avg>75?'#e04848':avg>50?'#e68a2e':avg>30?'#dbb73a':'#3fad62';
+  wrap.innerHTML=`<div style="margin:8px 0 4px;font-size:11px;color:#6b7b95;display:flex;justify-content:space-between;"><span>RISK SCORE</span><span>avg <b style="color:${col}">${avg}</b> / max <b>${mx}</b></span></div><div style="background:#151a28;border-radius:6px;height:8px;overflow:hidden;"><div style="width:${avg}%;height:100%;background:${col};border-radius:6px;transition:width 0.8s cubic-bezier(.22,1,.36,1);"></div></div>`;
+  const summaryRow=$('summaryRow');if(summaryRow&&summaryRow.parentNode)summaryRow.parentNode.insertBefore(wrap,summaryRow.nextSibling);
 }
 function anim(el,tgt){
   const dur=550,s=performance.now();
@@ -152,10 +193,14 @@ function renderTransactions(txs){
   body.innerHTML=txs.map((tx,i)=>{
     const cls=tx.violated?'violated':'cleared';const lbl=tx.violated?'🚨 VIOLATED':'✅ CLEARED';
     const chains=tx.causal_chain.map(s=>`<div class="causal-step">${esc(s)}</div>`).join('');
-    // Short reason: first triggered rule or "no rules"
     const shortReason=tx.triggered_rules.length>0?`Triggered ${tx.triggered_rules.join(', ')}`:'No rules triggered';
+    const txAmt = tx.transaction_amount !== undefined ? `<div class="tx-amount">$${Number(tx.transaction_amount).toLocaleString()}</div>` : '';
+    const riskPct = tx.risk_score !== undefined ? tx.risk_score : 0;
+    const riskColor = riskPct > 70 ? 'var(--crit)' : riskPct > 40 ? 'var(--high)' : 'var(--low)';
+    const riskBar = tx.risk_score !== undefined ? `<div class="risk-bar-row"><span class="risk-label">Risk</span><div class="risk-bar-track"><div class="risk-bar-fill" style="width:${riskPct}%;background:${riskColor}"></div></div><span class="risk-val" style="color:${riskColor}">${riskPct}</span></div>` : '';
     return `<div class="tx-card ${cls}" data-sev="${tx.severity}" data-status="${tx.violated?'violated':'passed'}">
       <div class="tx-header"><span class="tx-id">${tx.transaction_id}</span><div class="tx-badges"><span class="badge badge-${tx.severity}">${tx.severity}</span><span class="badge badge-${tx.action}">${tx.action}</span><span class="badge ${tx.violated?'badge-critical':'badge-low'}">${lbl}</span></div></div>
+      ${txAmt}${riskBar}
       <div class="tx-reason">${esc(shortReason)}</div>
       ${tx.triggered_rules.length>0?`<div class="tx-rules">${tx.triggered_rules.map(r=>`<span class="rule-chip">${r}</span>`).join('')}</div>`:''}
       <button class="tx-causal-toggle" onclick="toggleCausal(this,'cc-${i}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg> Expand (${tx.causal_chain.length} steps)</button>
@@ -226,6 +271,33 @@ els.highlightBtn.addEventListener('click',()=>{
   applyFilters();
 });
 
+// ── Export ──
+function renderExportBar(d){
+  let bar=$('exportBar');if(bar)bar.remove();
+  bar=document.createElement('div');bar.id='exportBar';
+  bar.style.cssText='display:flex;gap:10px;margin-bottom:16px;justify-content:flex-end;';
+  bar.innerHTML=`
+    <button id="exportJsonBtn" class="btn btn-ghost btn-sm">⬇ Export JSON</button>
+    <button id="exportCsvBtn" class="btn btn-ghost btn-sm">📊 Export CSV</button>`;
+  const dash=$('resultsDashboard');
+  const aiSum=$('aiSummary');
+  if(aiSum&&aiSum.parentNode)aiSum.parentNode.insertBefore(bar,aiSum);
+  $('exportJsonBtn').onclick=()=>exportJson(d);
+  $('exportCsvBtn').onclick=()=>exportCsv(d);
+}
+function exportJson(d){
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  dlFile(blob,'policyguard_results.json');toast('JSON exported','success',2000);
+}
+function exportCsv(d){
+  const rows=[['transaction_id','violated','severity','action','triggered_rules']];
+  d.transactions_analysis.forEach(t=>rows.push([t.transaction_id,t.violated,t.severity,t.action,t.triggered_rules.join('|')]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  dlFile(blob,'policyguard_transactions.csv');toast('CSV exported','success',2000);
+}
+function dlFile(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+
 // ── Helpers ──
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 window.toggleCausal=function(btn,id){const el=$(id);const o=el.classList.contains('visible');el.classList.toggle('visible',!o);btn.classList.toggle('open',!o)};
@@ -240,4 +312,20 @@ els.clearBtn.addEventListener('click',()=>{
   els.highlightBtn.classList.remove('active');els.highlightBtn.textContent='🔦 Critical Only';
 });
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')runPipeline()});
+
+// Export button handler
+const exportBtn = document.getElementById('exportBtn');
+if (exportBtn) {
+  exportBtn.addEventListener('click', () => {
+    if (!data) return;
+    try {
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      const a = document.createElement('a');
+      a.href = `/api/export-report?data=${encoded}`;
+      a.download = `compliance-report-${Date.now()}.txt`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    } catch(e) { toast('Export failed — data too large for URL', 'error'); }
+  });
+}
+
 })();

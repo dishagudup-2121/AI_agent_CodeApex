@@ -23,7 +23,17 @@ function validateRule(rule) {
     rule.conditions.forEach((cond, i) => {
       if (!cond.field) errors.push(`Condition ${i}: missing field`);
       if (!VALID_OPERATORS.includes(cond.operator)) errors.push(`Condition ${i}: invalid operator "${cond.operator}"`);
-      if (cond.value === undefined || cond.value === null) errors.push(`Condition ${i}: missing value`);
+      if (cond.value === undefined || cond.value === null) {
+        errors.push(`Condition ${i}: missing value`);
+      } else {
+        // Operator-specific type validation
+        const op = cond.operator;
+        if (['>', '>=', '<', '<='].includes(op)) {
+          if (typeof cond.value !== 'number') errors.push(`Condition ${i}: operator "${op}" requires a numeric value`);
+        } else if (['in', 'not_in'].includes(op)) {
+          if (!Array.isArray(cond.value)) errors.push(`Condition ${i}: operator "${op}" requires an array value`);
+        }
+      }
     });
   }
 

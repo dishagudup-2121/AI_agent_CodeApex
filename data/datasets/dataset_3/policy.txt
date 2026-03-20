@@ -1,0 +1,14 @@
+COMPLIANCE POLICY — EDGE CASE SCENARIOS
+Document ID: POL-EDGE-2026
+
+Regulation 1: Any single transaction exceeding $10,000 must be flagged for manual compliance review.
+Regulation 2: Transactions originating from or destined to sanctioned countries (North Korea, Iran, Syria, Cuba, Crimea) must be immediately blocked.
+Regulation 3: If a customer conducts more than 5 transactions within a 24-hour period and the customer is not classified as a VIP, the activity must be flagged for velocity analysis.
+Regulation 4: Any single transaction exceeding $50,000 must be escalated to the compliance officer and blocked pending manual approval.
+Regulation 5: New accounts (less than 30 days old) are prohibited from executing transactions exceeding $10,000.
+Regulation 6: Dormant accounts (no activity for 180 days or more) that initiate a transaction exceeding $5,000 must be flagged for reactivation review.
+Regulation 7: Accounts with a risk score exceeding 80 must have all outgoing transactions blocked.
+Regulation 8: All international transactions exceeding $25,000 must be flagged for enhanced due diligence review.
+Regulation 9: Transactions involving currency conversion with a spread exceeding 5% above the mid-market rate must be flagged.
+Regulation 10: No single user may initiate more than $500,000 in cumulative transaction volume within a single calendar day.
+Regulation 11: Weekend and holiday transactions exceeding $15,000 must be held for next-business-day review.
